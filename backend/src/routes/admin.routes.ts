@@ -1,5 +1,5 @@
 import express from 'express';
-import { blockUser, getUsers, unblockUser } from '../controller/admin/admin.controller';
+import { blockUser, getUsers, unblockUser } from '../controller/admin/userManagement';
 
 const adminRoutes = express.Router();
 
