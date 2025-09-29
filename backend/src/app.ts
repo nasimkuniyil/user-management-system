@@ -3,6 +3,7 @@ import cors from "cors";
 import adminRoutes from './routes/admin.routes';
 import authRoutes from './routes/auth.routes';
 import dotenv from 'dotenv';
+import userRoutes from './routes/user.routes';
 
 dotenv.config();
 
@@ -14,7 +15,8 @@ app.use(express.json());
 app.use(cors())
 
 //routes
-app.use('/api/admin/',adminRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/admin/',adminRoutes);
+app.use('/api/user/', userRoutes);
 
 app.listen(PORT, ()=>console.log(`server running on port number ${PORT}.`))
