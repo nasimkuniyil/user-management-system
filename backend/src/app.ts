@@ -1,10 +1,9 @@
-import express, { type Request, type Response } from 'express';
+import express from 'express';
 import cors from "cors";
 import adminRoutes from './routes/admin.routes';
 import authRoutes from './routes/auth.routes';
 import dotenv from 'dotenv';
 import userRoutes from './routes/user.routes';
-import validateForm from './helpers/validate-form';
 
 dotenv.config();
 
