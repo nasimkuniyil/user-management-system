@@ -36,8 +36,6 @@ export const validateUserData = (
         req.body = result.data;
         next();
     } catch (error) {
-        return res.status(500).json({
-            message: "Internal Server Error",
-        });
+        next(error);
     }
 };

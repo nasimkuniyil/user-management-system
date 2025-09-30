@@ -4,6 +4,7 @@ import adminRoutes from './routes/admin.routes';
 import authRoutes from './routes/auth.routes';
 import dotenv from 'dotenv';
 import userRoutes from './routes/user.routes';
+import errorHandler from './middlewares/error-handler';
 
 dotenv.config();
 
@@ -18,5 +19,7 @@ app.use(cors())
 app.use('/api/auth', authRoutes);
 app.use('/api/admin/',adminRoutes);
 app.use('/api/user/', userRoutes);
+
+app.use(errorHandler);
 
 app.listen(PORT, ()=>console.log(`server running on port number ${PORT}.`))
