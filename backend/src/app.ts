@@ -5,8 +5,10 @@ import authRoutes from './routes/auth.routes';
 import dotenv from 'dotenv';
 import userRoutes from './routes/user.routes';
 import errorHandler from './middlewares/error-handler';
+import connectDB from './config/db.config';
 
 dotenv.config();
+connectDB();
 
 const app = express();
 
@@ -17,9 +19,9 @@ app.use(cors())
 
 //routes
 app.use('/api/auth', authRoutes);
-app.use('/api/admin/',adminRoutes);
+app.use('/api/admin/', adminRoutes);
 app.use('/api/user/', userRoutes);
 
 app.use(errorHandler);
 
-app.listen(PORT, ()=>console.log(`server running on port number ${PORT}.`))
+app.listen(PORT, () => console.log(`server running on port number ${PORT}.`))
