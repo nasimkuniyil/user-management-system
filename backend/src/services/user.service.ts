@@ -9,7 +9,15 @@ export const getProfileService = async (id: string) => {
         error.statusCode = 404;
         throw error;
     }
-    return user;
+
+    const responseData = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+    }
+
+    return responseData;
 }
 
 export const editProfileService = async (id: string, updatedData: { name?: string, password?: string }) => {
