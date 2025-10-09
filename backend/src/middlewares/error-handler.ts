@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 
-function errorHandler(err:any, req:Request, res:Response, next:NextFunction) {
-  console.error("error middleware : ",err.stack);
+function errorHandler(err:any, req:Request, res:Response, next: NextFunction) {
+  console.error("## error middleware : ",err.stack);
 
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
@@ -9,6 +9,7 @@ function errorHandler(err:any, req:Request, res:Response, next:NextFunction) {
   res.status(statusCode).json({
     success: false,
     error: message,
+    errors: err.errors || []
   });
 }
 

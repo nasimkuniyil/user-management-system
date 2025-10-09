@@ -2,7 +2,12 @@ import { Request, Response } from "express";
 
 export const getProfile = async (req:Request, res:Response)=>{
     try{
-        //code here
+        const {id} = req.params;
+
+        if(!id){
+            
+        }
+
     }catch(error){
         //code here
     }

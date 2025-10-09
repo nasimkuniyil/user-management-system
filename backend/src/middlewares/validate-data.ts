@@ -24,18 +24,19 @@ export const validateUserData = (
     try {
         const result = ZUserSchema.safeParse(req.body);
         if (!result.success) {
-            return res.status(400).json({
-                message: "Validation failed",
-                errors: result.error.issues.map((issue) => ({
-                    field: issue.path.join("."),
-                    message: issue.message,
-                })),
-            });
+            const error = new Error("Validation failed");
+            (error as any).statusCode = 400;
+            (error as any).errors = result.error.issues.map((issue) => ({
+                field: issue.path.join("."),
+                message: issue.message,
+            }));
+            throw error;
         }
 
         req.body = result.data;
         next();
     } catch (error) {
+        console.log("catch validation error.");
         next(error);
     }
 };

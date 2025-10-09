@@ -5,10 +5,11 @@ import { error } from "console";
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userData = req.body;
-
+        console.log('user data : ', userData);
+        
         res.status(200).json({ message: "success", userData })
     } catch (error) {
-        //error handler middleware
+        console.log('hey register error.')
         next(error);
     }
 }
