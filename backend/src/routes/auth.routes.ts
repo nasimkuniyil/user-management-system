@@ -3,8 +3,8 @@ import { createAdmin, login, logout, register } from '../controller/auth.control
 import { validateUserData } from '../middlewares/validate-data';
 const authRoutes = express.Router();
 
-authRoutes.post('/register', validateUserData,register);
 authRoutes.post("/admin/register/",validateUserData, createAdmin);
+authRoutes.post('/register', validateUserData,register);
 authRoutes.post('/login',login);
 authRoutes.delete('/logout',logout);
 
