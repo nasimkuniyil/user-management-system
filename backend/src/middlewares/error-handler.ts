@@ -8,7 +8,7 @@ function errorHandler(err:any, req:Request, res:Response, next: NextFunction) {
 
   res.status(statusCode).json({
     success: false,
-    error: message,
+    message: message,
     errors: err.errors || []
   });
 }

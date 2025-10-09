@@ -1,11 +1,7 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
 import * as z from 'zod';
 
-const ZUserSchema = z.object({
-    name: z
-        .string()
-        .min(3, "Name must be at least 3 characters long")
-        .regex(/^[A-Za-z]+(?: [A-Za-z]+)*$/, "Name must contain only letters and spaces"),
+const ZAuthSchema = z.object({
     email: z
         .string()
         .email("Invalid email address")
@@ -16,13 +12,9 @@ const ZUserSchema = z.object({
         .regex(/^[A-Za-z0-9]+$/, "Password must contain only letters and numbers"),
 });
 
-export const validateUserData = (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
+export const validateAuthData = (req: Request, res: Response, next: NextFunction) => {
     try {
-        const result = ZUserSchema.safeParse(req.body);
+        const result = ZAuthSchema.safeParse(req.body);
         if (!result.success) {
             const error = new Error("Validation failed");
             (error as any).statusCode = 400;
@@ -32,11 +24,9 @@ export const validateUserData = (
             }));
             throw error;
         }
-
-        req.body = result.data;
         next();
     } catch (error) {
-        console.log("catch validation error.");
+        console.log('login data validation error.');
         next(error);
     }
-};
+}
