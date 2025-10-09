@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from "express";
-import User from "../../modal/user.modal";
+import User from "../modal/user.modal";
+import { registerService } from "../services/auth.service";
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userData = req.body;
         console.log('user data : ', userData);
-
-        res.status(200).json({ message: "success", userData })
+        const result = await registerService(userData);
+        res.status(200).json({ message: "success", user:result })
     } catch (error) {
         console.log('hey register error.')
         next(error);
