@@ -10,10 +10,7 @@ adminRoutes.delete("/delete-user/:id", authenticateToken, isAdmin, deleteUser);
 
 export default adminRoutes;
 
-// complete user delete system
 // admin can add user
 // admin can edit user
 
 // then move to frontend
-
-// in the last add profile image option
