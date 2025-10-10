@@ -43,12 +43,15 @@ export const editProfile = async (req:Request, res:Response, next:NextFunction)=
 export const uploadImageController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {id} = req.user;
+    console.log("hey")
 
     if (!req.file) {
       const error: any = new Error("No image uploaded");
       error.statusCode = 400;
       throw error;
     }
+
+    console.log("image : ",req.file)
 
     const user = await uploadImageService(id, req.file);
 

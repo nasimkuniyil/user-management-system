@@ -11,11 +11,10 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route exact path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
         <Route element={<ProtectedRoute />}>
-          <Route path="/userdetails" element={<UserDetails />} />
+          <Route path="/" element={<UserDetails />} />
         </Route>
-        {/* Admin-only Route */}
         <Route element={<AdminRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>

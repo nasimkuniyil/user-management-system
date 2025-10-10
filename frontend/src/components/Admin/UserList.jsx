@@ -5,7 +5,8 @@ import AdminProfileEditModal from "./AdminProfileEditModal";
 import Notification from "../common/Notification";
 import ConfirmationModal from "../common/ConfirmationModal";
 import { useDispatch, useSelector } from "react-redux";
-import { setUsers } from "../../features/adminSlice";
+// import { setUsers } from "../../features/adminSlice";
+import API from "../../api/axios";
 
 const UserList = () => {
     const [loading, setLoading] = useState(true);
@@ -14,8 +15,9 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState(null); // To store the selected user for editing
     const [notification, setNotification] = useState({ message: '', type: '' });
     const [confirmDelete, setConfirmDelete] = useState({ isOpen: false, userId: null });
-    const dispatch = useDispatch();
-    const users = useSelector(state => state.users.filteredUsers)
+    const [users, setUsers] = useState([]);
+    // const dispatch = useDispatch();
+    // const users = useSelector(state => state.users.filteredUsers)
 
     const handleEdit = (userId) => {
         const userToEdit = users.find(user => user._id === userId);
@@ -25,12 +27,10 @@ const UserList = () => {
 
     const handleDelete = async () => {
         try {
-            // Optimistically update the UI
             const updatedUsers = users.filter(user => user._id !== confirmDelete.userId);
-            dispatch(setUsers(updatedUsers));
+            // dispatch(setUsers(updatedUsers));
 
-            // Send delete request to the server
-            const response = await axios.delete(`http://localhost:5000/api/profile/delete/${confirmDelete.userId}`, {
+            const response = await API.delete(`/admin/delete-user/${confirmDelete.userId}`, {
                 headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
             });
 
@@ -51,10 +51,12 @@ const UserList = () => {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await axios.get('http://localhost:5000/api/profile/getUsers', {
+                const response = await API.get('/admin/users', {
                     headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
                 });
-                dispatch(setUsers(response.data));
+                console.log('res data : ',response.data)
+                setUsers(response.data?.users);
+                // dispatch(setUsers(response.data?.users));
             } catch (error) {
                 setError("Failed to fetch users.");
                 console.error("Error fetching users:", error);
@@ -64,13 +66,13 @@ const UserList = () => {
         };
 
         fetchUsers();
-    }, [dispatch]);
+    }, []);
 
     const handleUserUpdate = (updatedUser) => {
-        const updatedUsers = users.map(user =>
+        const updatedUsers = users?.map(user =>
             user._id === updatedUser._id ? updatedUser : user
         )
-        dispatch(setUsers(updatedUsers));
+        // dispatch(setUsers(updatedUsers));
     };
 
 
@@ -100,7 +102,7 @@ const UserList = () => {
 
     return (
         <div className="relative flex w-full flex-col rounded-lg border border-slate-200 bg-white shadow-sm">
-            {users.map((user) => (
+            {users?.map((user) => (
                 <UserCard
                     key={user._id}
                     user={user}

@@ -22,6 +22,7 @@ export const validateRegisterData = (
     next: NextFunction
 ) => {
     try {
+        console.log("hey : ", req.body)
         const result = ZRegisterSchema.safeParse(req.body);
         if (!result.success) {
             const error = new Error("Validation failed");

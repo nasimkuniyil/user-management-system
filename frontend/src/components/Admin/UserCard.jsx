@@ -1,4 +1,3 @@
-import SocialLinks from "../common/SocialLinks"
 
 /* eslint-disable react/prop-types */
 const UserCard = ({ user, onEdit, onDelete }) => {
@@ -17,9 +16,8 @@ const UserCard = ({ user, onEdit, onDelete }) => {
                         />
                     </div>
                     <div className="flex-grow">
-                        <h6 className="text-slate-800 font-medium">{user.username}</h6>
+                        <h6 className="text-slate-800 font-medium">{user.name}</h6>
                         <p className="text-slate-500 text-sm">{user.email}</p>
-                        <SocialLinks userDetails={user} />
                     </div>
                     <div className="flex flex-col md:flex-row items-center md:items-end gap-2">
                         <button onClick={onEdit} className="bg-gray-500 text-white w-full md:w-auto md:px-10 md:py-3 sm:py-2 px-4 rounded-lg hover:bg-gray-900 hover:scale-105 transition-transform text-center">

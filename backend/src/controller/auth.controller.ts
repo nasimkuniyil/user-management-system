@@ -8,16 +8,29 @@ import bcrypt from 'bcrypt';
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userData: IUser = req.body;
+        const loggedUser = req.user;
+
         console.log('user data : ', userData);
         const user = await registerService(userData);
         console.log("user: ", user)
+
+        if (loggedUser) {
+            return res.status(201).json({
+                message: 'User created successfully by admin.',
+                user: {
+                    name: user.name,
+                    email: user.email,
+                    role: user.role,
+                }
+            });
+        }
 
         const payload = {
             id: user._id,
             role: user.role
         }
 
-        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "20s" });
+        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "60s" });
         const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
 
         const responseData: AuthResponse = {
@@ -46,7 +59,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
             role: user.role
         }
 
-        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "20s" });
+        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "60s" });
         const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
 
         const responseData: AuthResponse = {
@@ -138,7 +151,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 
             const { id, role } = decoded as JwtPayload;
 
-            const newAccessToken = jwt.sign({ id, role }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '10m' });
+            const newAccessToken = jwt.sign({ id, role }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '60s' });
             console.log('New access token created!')
 
             res.status(200).json({ token: newAccessToken });

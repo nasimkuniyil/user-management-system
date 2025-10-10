@@ -1,18 +1,14 @@
 /* eslint-disable react/prop-types */
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { setError, updateProfile } from "../../features/profileSlice";
 import ValidationMessage from "../common/Validation";
 
 const AdminProfileEditModal = ({ isModalOpen, toggleModal, selectedUser, onUpdateUser }) => {
-    const dispatch = useDispatch();
     const [editedUser, setEditedUser] = useState(selectedUser);
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState(selectedUser.profileImage);
     const [validationErrors, setValidationErrors] = useState({});
-    const error = useSelector(state => state.profile.error);
-
+    const [error, setError] = useState("");
 
     useEffect(() => {
         setEditedUser(selectedUser);
@@ -58,7 +54,7 @@ const AdminProfileEditModal = ({ isModalOpen, toggleModal, selectedUser, onUpdat
     const handleSave = async () => {
         const errors = validateForm(editedUser);
         setValidationErrors(errors);
-        dispatch(setError(''));
+        setError("")
         if (Object.keys(errors).length > 0) return;
         try {
             let uploadedImageUrl = editedUser.profileImage;
@@ -78,7 +74,7 @@ const AdminProfileEditModal = ({ isModalOpen, toggleModal, selectedUser, onUpdat
             // Update profile
             const updatedProfile = { ...editedUser, profileImage: uploadedImageUrl, selectedUser };
             const response = await axios.put(
-                'http://localhost:5000/api/profile/userdata',
+                'http://localhost:4000/api/admin/user-profile/edit/123',
                 updatedProfile,
                 {
                     headers: {
@@ -88,17 +84,15 @@ const AdminProfileEditModal = ({ isModalOpen, toggleModal, selectedUser, onUpdat
             );
 
             // Dispatch updated profile data
-            dispatch(updateProfile(response.data.user));
             console.log(response.data.user);
             onUpdateUser(response.data.user); // Update parent state
             // Close the modal
             toggleModal(false);
         } catch (error) {
             console.error('Error updating profile:', error);
-
             // Display backend error message
             const errorMessage = error.response?.data?.message || 'Something went wrong. Please try again.';
-            dispatch(setError(errorMessage));
+            setError(errorMessage);
         }
     }
 
@@ -146,7 +140,7 @@ const AdminProfileEditModal = ({ isModalOpen, toggleModal, selectedUser, onUpdat
                             <input
                                 type="text"
                                 name="username"
-                                value={editedUser.username || ''}
+                                value={editedUser.name || ''}
                                 onChange={handleChange}
                                 placeholder="Enter your new username"
                                 className="w-full px-3 py-2 border rounded-lg"
@@ -165,48 +159,9 @@ const AdminProfileEditModal = ({ isModalOpen, toggleModal, selectedUser, onUpdat
                                 onChange={handleChange}
                                 placeholder="Enter your new email"
                                 className="w-full px-3 py-2 border rounded-lg"
+                                disabled
                             />
                             {validationErrors.email && <ValidationMessage message={validationErrors.email} />}
-                        </div>
-
-
-                        {/* Profile Image Upload */}
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Profile Image</label>
-                            <input
-                                type="file"
-                                onChange={handleImageChange}
-                                className="w-full px-3 py-2 border rounded-lg"
-                            />
-                            {imagePreview && (
-                                <div className="mt-4 flex justify-center">
-                                    <img
-                                        src={imagePreview}
-                                        alt="Profile Preview"
-                                        className="w-24 h-24 object-cover rounded-full"
-                                    />
-                                </div>
-                            )}
-                            {validationErrors.profileImage && <ValidationMessage message={validationErrors.profileImage} />}
-                        </div>
-
-
-                        {/* Social Media Links */}
-                        <div className="mb-4">
-                            <h3 className="text-xl font-semibold mb-2">Social Media Links</h3>
-                            {['GitHub', 'LinkedIn', 'Twitter', 'Unsplash'].map((platform) => (
-                                <div className="flex items-center mb-2" key={platform}>
-                                    <label className="block text-gray-700 w-20">{platform}</label>
-                                    <input
-                                        type="text"
-                                        name={platform.toLowerCase()}
-                                        value={editedUser[platform.toLowerCase()] || ''}
-                                        onChange={handleChange}
-                                        placeholder={`Enter ${platform} URL`}
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                    />
-                                </div>
-                            ))}
                         </div>
 
                         {/* Cancel and Save Buttons */}

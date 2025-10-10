@@ -14,7 +14,8 @@ export const getProfileService = async (id: string) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role
+        role: user.role,
+        image:user?.image
     }
 
     return responseData;

@@ -1,9 +1,8 @@
 import { useDispatch } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom'
-import { logout } from '../../features/authSlice';
 import { useState } from 'react';
 import AddUser from './AddUser';
-import { searchUsers } from '../../features/adminSlice';
+import { logout } from '../../redux/slices/authSlice';
 
 const AdminNavBar = () => {
     const dispatch = useDispatch();
@@ -15,11 +14,11 @@ const AdminNavBar = () => {
         navigate("/");
     }
 
-    const handleSearch = (e) => {
-        const query = e.target.value;
-        setSearchQuery(query);
-        dispatch(searchUsers(query));
-    };
+    // const handleSearch = (e) => {
+    //     const query = e.target.value;
+    //     setSearchQuery(query);
+    //     dispatch(searchUsers(query));
+    // };
 
     return (
         <nav className="bg-gray-800 p-4 shadow-md">
@@ -31,7 +30,7 @@ const AdminNavBar = () => {
                     <input
                         type="text"
                         value={searchQuery}
-                        onChange={handleSearch}
+                        onChange={null}
                         placeholder="Search users..."
                         className="w-52 max-w-xs sm:max-w-sm lg:max-w-md bg-gray-700 text-white px-3 py-1 rounded focus:outline-none focus:ring focus:ring-violet-500"
                     />

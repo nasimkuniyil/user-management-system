@@ -2,75 +2,45 @@ import axios from "axios";
 import { useState } from "react";
 import ValidationMessage from "../common/Validation";
 import { useDispatch, useSelector } from "react-redux";
-import { setError } from "../../features/profileSlice";
-import { addUser } from "../../features/adminSlice";
+import API from "../../api/axios";
 
 /* eslint-disable react/prop-types */
 const AddUser = ({ isModalOpen, toggleModal }) => {
-    const dispatch = useDispatch();
+    // const dispatch = useDispatch();
     const [user, setUser] = useState({
-        username: '',
+        name: '',
         email: '',
         password: '',
-        profileImage: '',
-        github: '',
-        linkedin: '',
-        twitter: '',
-        unsplash: '',
     });
+
+    const [formData, setFormData] = useState({ name: "", email: "", password: "" });
     const [imageFile, setImageFile] = useState(null);
     const [imagePreview, setImagePreview] = useState('https://static.thenounproject.com/png/801397-200.png');
     const [validationErrors, setValidationErrors] = useState({});
-    const error = useSelector(state => state.profile.error);
+    const [error, setError] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setUser((prev) => ({ ...prev, [name]: value }));
+        setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
     const handleClose = () => {
         toggleModal(!isModalOpen)
 
-        dispatch(setError(''))
+        // dispatch(setError(''))
         return;
-    }
-
-    const handleImageChange = (e) => {
-        const file = e.target.files[0];
-
-        if (file) {
-            if (file.size > 2 * 1024 * 1024) {
-                alert("File size must be less than 2MB.");
-                return;
-            }
-            const validTypes = ["image/jpeg", "image/png"];
-            if (!validTypes.includes(file.type)) {
-                alert("Invalid file type. Only JPEG and PNG are allowed.");
-                return;
-            }
-            setUser((prev) => ({ ...prev, profileImage: file }));
-            setImageFile(file)
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setImagePreview(reader.result);
-            }
-            reader.readAsDataURL(file);
-        }
     }
 
     const validateInput = () => {
         const errors = {};
-        if (!user.username || user.username.trim().length < 3) {
+        if (!formData.name || formData.name.trim().length < 3) {
             errors.username = "Username must be at least 3 characters.";
         }
-        if (!user.email || !/\S+@\S+\.\S+/.test(user.email)) {
+        if (!formData.email || !/\S+@\S+\.\S+/.test(formData.email)) {
             errors.email = "Enter a valid email address.";
         }
-        if (!user.password || user.password.length < 6) {
-            errors.password = "Password must be at least 6 characters.";
-        }
-        if (imageFile && !['image/jpeg', 'image/png'].includes(imageFile.type)) {
-            errors.image = "Profile image must be in JPEG or PNG format.";
+        if (!formData.password || formData.password.length < 6) {
+            errors.password = "Password must be at least 8 characters.";
         }
         return errors;
     };
@@ -83,31 +53,18 @@ const AddUser = ({ isModalOpen, toggleModal }) => {
             console.log('Validation Errors:', errors);
             return;
         }
-        dispatch(setError(''))
+        setError("");
         try {
-            let uploadedImageUrl = '';
-            if (imageFile) {
-                const formData = new FormData();
-                formData.append('image', imageFile);
-                const response = await axios.post('http://localhost:5000/api/profile/upload', formData, {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
-                        Authorization: `Bearer ${localStorage.getItem('token')}`
-                    },
-                });
-                uploadedImageUrl = response.data.imageUrl;
-            }
-            const newUser = { ...user, profileImage: uploadedImageUrl };
-            const response = await axios.post('http://localhost:5000/api/profile/newuser', newUser, {
+            const response = await API.post('/auth/register', formData, {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            dispatch(addUser(response.data.user)); // Update Redux
+            console.log('user added : ',response.data);
             toggleModal()
         } catch (error) {
             console.error('Error updating profile:', error.response?.data || error.message);
-            dispatch(setError(error.response?.data || { message: "An unexpected error occurred." }));
+            setError(error.response?.data || { message: "An unexpected error occurred." });
         }
     }
     if (!isModalOpen) return null;
@@ -124,9 +81,9 @@ const AddUser = ({ isModalOpen, toggleModal }) => {
                             <label className="block text-gray-700">Username</label>
                             <input
                                 type="text"
-                                value={user.username || ''}
+                                value={formData.name || ''}
                                 onChange={handleChange}
-                                name="username"
+                                name="name"
                                 placeholder="Enter username"
                                 className="w-full px-3 py-2 border rounded-lg"
                             />
@@ -138,7 +95,7 @@ const AddUser = ({ isModalOpen, toggleModal }) => {
                             <label className="block text-gray-700">Email</label>
                             <input
                                 type="email"
-                                value={user.email || ''}
+                                value={formData.email || ''}
                                 onChange={handleChange}
                                 name="email"
                                 placeholder="Enter email"
@@ -150,51 +107,13 @@ const AddUser = ({ isModalOpen, toggleModal }) => {
                             <label className="block text-gray-700">password</label>
                             <input
                                 type="password"
-                                value={user.password || ''}
+                                value={formData.password || ''}
                                 onChange={handleChange}
                                 name="password"
                                 placeholder="Enter password"
                                 className="w-full px-3 py-2 border rounded-lg"
                             />
                             {validationErrors.password && <ValidationMessage message={validationErrors.password} />}
-                        </div>
-
-                        {/* Profile Image Upload */}
-                        <div className="mb-4">
-                            <label className="block text-gray-700">Profile Image</label>
-                            <input
-                                type="file"
-                                onChange={handleImageChange}
-                                className="w-full px-3 py-2 border rounded-lg"
-                            />
-                            {imagePreview && (
-                                <div className="mt-4 flex justify-center">
-                                    <img
-                                        src={imagePreview}
-                                        alt="Profile Preview"
-                                        className="w-48 h-48 rounded-full object-cover"
-                                    />
-                                </div>
-                            )}
-                            {validationErrors.image && <ValidationMessage message={validationErrors.image} />}
-                        </div>
-
-                        {/* Social Media Links */}
-                        <div className="mb-4">
-                            <h3 className="text-xl font-semibold mb-2">Social Media Links</h3>
-                            {['GitHub', 'LinkedIn', 'Twitter', 'Unsplash'].map((platform) => (
-                                <div className="flex items-center mb-2" key={platform}>
-                                    <label className="block text-gray-700 w-20">{platform}</label>
-                                    <input
-                                        type="text"
-                                        name={platform.toLowerCase()}
-                                        value={user[platform.toLowerCase()] || ''}
-                                        onChange={handleChange}
-                                        placeholder={`Enter ${platform} URL`}
-                                        className="w-full px-3 py-2 border rounded-lg"
-                                    />
-                                </div>
-                            ))}
                         </div>
 
                         {/* Cancel and Save Buttons */}
