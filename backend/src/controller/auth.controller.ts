@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import User, { IUser } from "../modal/user.modal";
 import { loginService, registerService } from "../services/auth.service";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload, VerifyErrors } from "jsonwebtoken";
 import { AuthResponse } from "../types/user";
+import bcrypt from 'bcrypt';
 
 export const register = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -10,9 +11,24 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
         console.log('user data : ', userData);
         const user = await registerService(userData);
         console.log("user: ", user)
-        const accessToken = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1h" });
-        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
-        res.status(200).json({ message: "success", user, accessToken, refreshToken })
+
+        const payload = {
+            id: user._id,
+            role: user.role
+        }
+
+        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "20s" });
+        const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
+
+        const responseData: AuthResponse = {
+            name: user.name,
+            email: user.email,
+            role: user.role,
+            token: accessToken,
+            refreshToken: refreshToken,
+        };
+
+        res.status(200).json({ message: "success", responseData })
     } catch (error) {
         console.log('hey register error.')
         next(error);
@@ -25,9 +41,12 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         const user = await loginService(req.body);
         console.log("user: ", user)
 
-        const payload = {id: user._id}
-        
-        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "1h" });
+        const payload = {
+            id: user._id,
+            role: user.role
+        }
+
+        const accessToken = jwt.sign(payload, process.env.ACCESS_TOKEN_SECRET as string, { expiresIn: "20s" });
         const refreshToken = jwt.sign(payload, process.env.REFRESH_TOKEN_SECRET as string, { expiresIn: "7d" });
 
         const responseData: AuthResponse = {
@@ -46,7 +65,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 }
 
 
-export const logout = async (req: Request, res: Response, next:NextFunction) => {
+export const logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
         res.clearCookie('refreshToken', {
             httpOnly: true,
@@ -76,6 +95,7 @@ export const createAdmin = async (req: Request, res: Response, next: NextFunctio
 
         const userData = req.body;
         userData.role = "admin";
+        userData.password = await bcrypt.hash(userData.password, 10)
         console.log(userData);
         const newAdmin = new User(userData);
         await newAdmin.save();
@@ -93,6 +113,38 @@ export const createAdmin = async (req: Request, res: Response, next: NextFunctio
                 message: Object.values(error.errors).map((val: any) => val.message).join(", "),
             });
         }
+        next(error);
+    }
+}
+
+export const refreshToken = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { refreshToken } = req.body;
+
+        console.log('refreshToken: ', refreshToken)
+        if (!refreshToken) {
+            const error: any = new Error("Refresh token not found");
+            error.statusCode = 401;
+            throw error;
+        }
+
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET!, (err: VerifyErrors | null, decoded: any) => {
+            if (err) {
+                const error: any = new Error("Invalid refresh token");
+                error.statusCode = 403;
+                throw error;
+            }
+            console.log('Refresh token verified!')
+
+            const { id, role } = decoded as JwtPayload;
+
+            const newAccessToken = jwt.sign({ id, role }, process.env.ACCESS_TOKEN_SECRET!, { expiresIn: '10m' });
+            console.log('New access token created!')
+
+            res.status(200).json({ token: newAccessToken });
+        });
+    } catch (error) {
+        console.log('refresh token error.');
         next(error);
     }
 }

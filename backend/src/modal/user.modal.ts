@@ -1,7 +1,9 @@
 import { Document, model, Schema } from "mongoose";
+import { optional } from "zod";
 
 export interface IUser extends Document {
     name: string;
+    image?:string;
     email: string;
     password: string;
     role: "admin" | "user";
@@ -13,6 +15,9 @@ const UserSchema = new Schema<IUser>({
         type: String,
         required: true,
         trim: true
+    },
+    image:{
+        type:String
     },
     email: {
         type: String,

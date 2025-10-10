@@ -27,6 +27,7 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
         }
 
         console.log('Token verified, storing user in request');
+        console.log('decoded : ', decoded);
         req.user = decoded;
         next();
     });

@@ -1,25 +1,27 @@
 import { NextFunction, Request, Response } from "express";
+import { deleteUserService, getAllUsersService } from "../services/admin.service";
 
-export const getUsers = async (req:Request, res:Response)=>{
-    try{
-        // code for fetch all users from database.
-    }catch(err){
-        // use error middleware
+export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const users = await getAllUsersService();
+        console.log("all users : ", users);
+
+        res.status(200).json({ users });
+    } catch (err) {
+        console.log("admin get user error.")
+        next(err);
     }
 }
 
-export const blockUser = async (req:Request, res:Response)=>{
-    try{
-        // code for fetch all users from database.
-    }catch(err){
-        // use error middleware
-    }
-}
+export const deleteUser = async (req: Request, res: Response, next:NextFunction) => {
+    try {
+        const {id} = req.params;
+        
+        const deletedUser = await deleteUserService(id);
 
-export const unblockUser = async (req:Request, res:Response)=>{
-    try{
-        // code for fetch all users from database.
-    }catch(err){
-        // use error middleware
+
+    } catch (err) {
+        console.log("admin delete user error.")
+        next(err);
     }
 }

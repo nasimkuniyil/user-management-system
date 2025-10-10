@@ -44,3 +44,21 @@ export const editProfileService = async (id: string, updatedData: { name?: strin
 
     return userObj;
 }
+
+
+export const uploadImageService = async (id: string, image:Express.Multer.File) => {
+    const user = await User.findById(id);
+
+    if (!user) {
+        const error: any = new Error('User not found');
+        error.statusCode = 404;
+        throw error;
+    }
+
+    user.image = `/uploads/${image.filename}`
+
+    await user.save();
+
+    return user;
+}
+
