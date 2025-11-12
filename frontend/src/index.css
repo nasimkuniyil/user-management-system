@@ -1,0 +1,24 @@
+@import 'tailwindcss';
+
+@layer base{
+  body{
+    @apply bg-slate-50
+  }
+  h1{
+    @apply text-[35px] font-extrabold md:text-[45px] lg:text-[55px] ;
+  }
+  h2{
+    @apply text-[30px] font-bold md:text-[40px] lg:text-[50px] ;
+  }
+  h3{
+    @apply text-[22px] font-bold md:text-[33px] lg:text-[44px] ;
+  }
+  h4{
+    @apply text-[15px] font-bold md:text-[25px] lg:text-[35px] ;
+  }
+  button{
+    @apply cursor-pointer px-3 py-1.5 rounded-md text-lg
+  }
+}
+
+
